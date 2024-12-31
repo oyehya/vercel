@@ -1,0 +1,267 @@
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+
+const PopupForm = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    removalType: '',
+    branch: '',
+    fullName: '',
+    phone: '',
+    termsAccepted: true
+  });
+  const [phoneError, setPhoneError] = useState(false);
+  const [showPopup, setShowPopup] = useState(true);
+
+  const totalSteps = 4;
+
+  const handleNext = (nextStep) => {
+    const currentStepElement = document.querySelector('.step.active');
+    if (currentStepElement) {
+      currentStepElement.classList.add('exit');
+      setTimeout(() => {
+        currentStepElement.classList.remove('active', 'exit');
+        const nextStepElement = document.getElementById('step' + nextStep);
+        if (nextStepElement) {
+          nextStepElement.classList.add('active');
+          setCurrentStep(nextStep);
+        }
+      }, 300);
+    }
+  };
+
+  const handleSubmit = () => {
+    const { fullName, phone, termsAccepted } = formData;
+
+    if (!termsAccepted) {
+      alert('谞讗 诇讗砖专 讗转 转谞讗讬 砖讬诪讜砖');
+      return;
+    }
+
+    setPhoneError(false);
+
+    if (!phone || phone.length !== 10 || !phone.startsWith('05')) {
+      setPhoneError(true);
+      return;
+    }
+
+    if (fullName && phone) {
+      handleNext(4);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  if (!showPopup) return null;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4" dir="rtl">
+      <style jsx global>{`
+        @keyframes flip180 {
+          0% {
+            transform: rotateY(180deg) perspective(2000px);
+            opacity: 0;
+          }
+          100% {
+            transform: rotateY(0deg) perspective(2000px);
+            opacity: 1;
+          }
+        }
+
+        @keyframes flipOut180WithGreen {
+          0% { 
+            transform: rotateY(0deg) perspective(2000px);
+            opacity: 1;
+            background: white;
+          }
+          50% {
+            transform: rotateY(-90deg) perspective(2000px);
+            background: rgb(34 197 94 / 0.5);
+            opacity: 0.7;
+          }
+          100% {
+            transform: rotateY(-180deg) perspective(2000px);
+            background: white;
+            opacity: 0;
+          }
+        }
+
+        .step {
+          position: absolute;
+          width: 100%;
+          display: none;
+          min-height: 250px;
+          transition: all 300ms ease;
+          perspective: 2000px; /* 讛讜住驻转 perspective 诇讗诇诪谞讟 讛讛讜专讛 */
+          transform-style: preserve-3d; /* 讛讜住驻转 transform-style */
+        }
+
+        .step > div {
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+          transform-origin: center center;
+          min-height: inherit;
+          transition: all 0.3s ease;
+        }
+
+        .step.active {
+          display: block !important;
+          position: relative;
+        }
+
+        .step.active > div {
+          animation-name: flip180;
+          animation-duration: 0.1s;
+          animation-timing-function: ease-out;
+          animation-fill-mode: forwards;
+          perspective: 2000px;
+        }
+
+        .step.exit > div {
+          animation-name: flipOut180WithGreen;
+          animation-duration: 0.8s;
+          animation-timing-function: ease-in-out;
+          animation-fill-mode: forwards;
+          perspective: 2000px;
+        }
+      `}</style>
+
+      <Card className="w-full max-w-md bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-xl overflow-visible relative border border-white/20">
+        <div className="text-2xl font-bold text-center text-white bg-gradient-to-r from-blue-600 to-blue-700 py-6 px-5 rounded-t-3xl shadow-lg relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-t-3xl"></div>
+          <span className="relative">诪诇讗讜 驻专讟讬诐 讜转拽讘诇讜 讬讬注讜抓 讞讬谞诐 诪诪讜诪讞讛</span>
+          <button onClick={() => setShowPopup(false)} className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center backdrop-blur">脳</button>
+        </div>
+
+        <div className="p-5">
+          <div className="step active" id="step1">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5">
+              <h3 className="text-xl font-semibold mb-5 text-gray-800">诪讛 讗转诐 诪注讜谞讬讬谞讬诐 诇讛住讬专 ?</h3>
+              {['谞拽讜讚讜转 讞谉 /砖讜诪讜转', '住专讞讬 注讜专', '讻诇 诪讬谞讬', '讗讞专'].map((option) => (
+                <label key={option} className="flex items-center p-4 my-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all cursor-pointer border border-gray-100">
+                  <input
+                    type="radio"
+                    name="removalType"
+                    value={option}
+                    className="w-5 h-5 ml-3 accent-blue-600"
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      handleNext(2);
+                    }}
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="step" id="step2">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5">
+              <h3 className="text-xl font-semibold mb-5 text-gray-800">诪讛 讛住谞讬祝 讛拽专讜讘 讗诇讬讻诐 ?</h3>
+              {['专诪转 讙谉 - 讘谞讬 讘专拽', '谞转谞讬讛', '讞讬驻讛'].map((branch) => (
+                <label key={branch} className="flex items-center p-4 my-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all cursor-pointer border border-gray-100">
+                  <input
+                    type="radio"
+                    name="branch"
+                    value={branch}
+                    className="w-5 h-5 ml-3 accent-blue-600"
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      handleNext(3);
+                    }}
+                  />
+                  {branch}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="step" id="step3">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5">
+              <h3 className="text-xl font-semibold mb-5 text-gray-800">诪诇讗讜 讗转 讛驻专讟讬诐 砖诇讻诐 :</h3>
+              <input
+                type="text"
+                name="fullName"
+                placeholder="砖诐 诪诇讗"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                className="w-full p-4 mb-3 bg-gray-50 border border-gray-200 rounded-2xl text-right"
+              />
+              <input
+                type="tel"
+                name="phone"
+                placeholder="诪住驻专 讟诇驻讜谉"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className="w-full p-4 mb-2 bg-gray-50 border border-gray-200 rounded-2xl text-right"
+              />
+              {phoneError && (
+                <div className="text-red-600 text-sm mr-3 mb-3">讛讻谞住 诪住驻专 谞讬讬讚 转拽讬谉</div>
+              )}
+              <button
+                onClick={handleSubmit}
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:translate-y-[-2px] transition-all shadow-lg"
+              >
+                拽讘诇讜 驻专讟讬诐 馃憟
+              </button>
+            </div>
+          </div>
+
+          <div className="step" id="step4">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5 text-center">
+              <h3 className="text-xl font-semibold mb-3 text-gray-800">转讜讚讛!</h3>
+              <p className="mb-5">驻专讟讬讻诐 谞专砖诪讜 讘讛爪诇讞讛 ! 讗讜讟讜讟讜 谞讬爪讜专 讗讬转讻诐 拽砖专 .</p>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold"
+              >
+                住讙讜专 鉁�
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center px-4">
+            <button
+              onClick={() => currentStep > 1 && handleNext(currentStep - 1)}
+              className="w-10 h-10 flex items-center justify-center bg-gray-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
+            >
+              鉂�
+            </button>
+            <div className="flex gap-2">
+              {[...Array(totalSteps)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    currentStep === i + 1 ? 'bg-blue-600 scale-125' : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => currentStep < totalSteps && handleNext(currentStep + 1)}
+              className="w-10 h-10 flex items-center justify-center bg-gray-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
+            >
+              鉂�
+            </button>
+          </div>
+
+          <div className="text-center text-sm text-gray-500 mt-4">
+            <label className="flex items-center justify-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.termsAccepted}
+                onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                className="w-4 h-4 accent-blue-600"
+              />
+              <span>讗谞讬 诪住讻讬诪/讛 诇转谞讗讬 讛砖讬诪讜砖 讘讗转专</span>
+            </label>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default PopupForm;
